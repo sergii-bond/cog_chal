@@ -1,5 +1,10 @@
 #!/bin/sh
 
+echo "--Download modified images from Amazon AWS and extract them"
+wget https://s3-us-west-1.amazonaws.com/cogniac-public-data/python_coding_challenge.tar.gz
+tar zxvf python_coding_challenge.tar.gz
+echo "Done----------------------"
+
 echo "--Download images from flickr"
 mkdir flickr_photos
 python get_flickr.py
