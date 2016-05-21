@@ -2,7 +2,6 @@ import flickrapi
 import xml.etree.ElementTree as ET
 import urllib
 import os
-#import hdf5
 import csv
 
 def dic2csv(dic, csv_path, field1, field2):
@@ -34,8 +33,8 @@ for photo in flickr.walk(user_id='143060054@N02', tags = 'people'):
     print 'Fetching ' + url
     impath = os.path.join(flickr_photos_dir, imname) 
     urllib.urlretrieve(url, impath)
-    name_to_url[impath] = url 
+    name_to_url[imname] = url 
 
 
 
-dic2csv(name_to_url, 'im2url.csv', 'impath', 'url')
+dic2csv(name_to_url, 'im2url.csv', 'imname', 'url')
