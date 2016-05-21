@@ -15,12 +15,19 @@ def score(ground_truth, predictions):
     num_matched = len(ground_truth.keys())
     for filename in predictions.keys():
         try:
-            if ground_truth[filename] == predictions[filename]:
+            if ground_truth[filename] == to_http(predictions[filename]):
                 num_correct+=1
         except:
             pass
     accuracy  = float(num_correct)/float(num_matched)
     return accuracy
+
+def to_http(url):
+    if url.startswith('https'):
+        url = url.split('https')[1]
+        http = "http"+url
+        return http
+    return url
 
 if __name__ == "__main__":
     #make sure the script is being used correctly

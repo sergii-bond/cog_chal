@@ -10,7 +10,7 @@ match_file = 'match_dic.csv'
 map_file = 'im2url.csv'
 
 # output results csv file
-out_file = 'pred.csv'
+out_file = 'results.csv'
 #---------------------------------------
 
 def dic2csv(dic, csv_path, field1, field2):
