@@ -8,17 +8,23 @@ require 'paths'
 local Threads = require 'threads'
 local t = require './transforms'
 
+local cmd = torch.CmdLine()
+cmd:text()
+cmd:text('Torch script to extract features from images')
+cmd:text()
+cmd:text('Parameters:')
+cmd:option('-im_dir',    'modified_images', 'Directory where photos are located. It is assumed all files there are images')
+cmd:option('-out_file',    'modified_features-101.t7', 'Output file name to save extracted features')
+
+local opt = cmd:parse(arg or {})
+assert(paths.dirp(opt.im_dir), 'Directory not found: ' .. opt.im_dir)
+
 --------------------------------------------------------------------
--- Arguments
--- it is assumed all files in the directory are images
---local im_dir = "flickr_photos"
-local im_dir = "modified_images"
+-- Other arguments
+-- path to CNN
+local model_path = 'resnet-101.t7'
 -- number of feature vectors per image (transformations & crops used)
 local nCrops = 1
--- model
-local model_path = "resnet-101.t7"
---local out_file = "flickr_features-101.t7"
-local out_file = "modified_features-101.t7"
 -- number of threads for data processing
 local nThreads = 7
 -- batch size
@@ -28,7 +34,8 @@ local im_input_size = 224 -- for resnet
 local scale_size = 224 -- for resnet
 --------------------------------------------------------------------
 
-local im_paths_tmp = paths.dir(im_dir)
+
+local im_paths_tmp = paths.dir(opt.im_dir)
 
 local im_paths = {}
 
@@ -40,11 +47,11 @@ end
 
 --print(#im_paths)
 
-print(('Found %d images in %s'):format(#im_paths, im_dir))
+print(('Found %d images in %s'):format(#im_paths, opt.im_dir))
 
 -- Load the model
 local model = torch.load(model_path)
-print(model)
+--print(model)
 
 -- Remove the fully connected layer
 local linear_layer = model:get(#model.modules)
@@ -53,7 +60,7 @@ assert(torch.type(linear_layer) == 'nn.Linear')
 model:remove(#model.modules)
 
 model:evaluate()
-print(linear_layer_input_size)
+--print(linear_layer_input_size)
 --assert(linear_layer_input_size == 512, 'wrong output size')
 
 features = torch.FloatTensor(#im_paths, nCrops, linear_layer_input_size):zero()
@@ -122,7 +129,7 @@ function run(batchSize, im_paths, nCrops)
                 for i, im_path in ipairs(im_paths) do
                 
                   -- load the image as a RGB float tensor with values 0..1
-                  path = paths.concat(im_dir, im_path)
+                  path = paths.concat(opt.im_dir, im_path)
                   assert(paths.filep(path), "File doesn't exist: " .. path)
                   local img = Image.load(path, 3, 'float')
 
@@ -201,7 +208,7 @@ end
 
 df = {im_path2id = new_ordered_paths, features = features} 
 
-print('Saving normalized features to disk, ' .. out_file)
-  torch.save(out_file, df)
+print('Saving normalized features to disk, ' .. opt.out_file)
+  torch.save(opt.out_file, df)
 print('Done.')
 
